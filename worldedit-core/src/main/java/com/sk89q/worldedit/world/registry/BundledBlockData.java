@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
 import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.util.gson.ColorAdapter;
 import com.sk89q.worldedit.util.gson.VectorAdapter;
 import org.apache.logging.log4j.Logger;
 
@@ -73,6 +74,7 @@ public final class BundledBlockData {
     private void loadFromResource() throws IOException {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Vector3.class, new VectorAdapter());
+        gsonBuilder.registerTypeAdapter(Integer.class, new ColorAdapter());
         Gson gson = gsonBuilder.create();
         URL url = BundledRegistries.loadRegistry("blocks");
         LOGGER.debug("Using {} for bundled block data.", url);

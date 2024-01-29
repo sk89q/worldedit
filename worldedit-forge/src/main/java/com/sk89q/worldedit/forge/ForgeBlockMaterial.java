@@ -26,6 +26,7 @@ import net.minecraft.world.level.material.PushReaction;
 
 import javax.annotation.Nullable;
 
+// TODO Finish delegating all methods
 /**
  * Forge block material that pulls as much info as possible from the Minecraft
  * Material, and passes the rest to another implementation, typically the
@@ -46,11 +47,22 @@ public class ForgeBlockMaterial extends PassthroughBlockMaterial {
     }
 
     @Override
+    public boolean isFullCube() {
+        // return block.isCollisionShapeFullBlock();
+        return super.isFullCube();
+    }
+
+    @Override
     public boolean isOpaque() {
         return block.canOcclude();
     }
 
     @SuppressWarnings("deprecation")
+    @Override
+    public boolean isPowerSource() {
+        return block.isSignalSource();
+    }
+
     @Override
     public boolean isLiquid() {
         return block.liquid();
@@ -60,6 +72,33 @@ public class ForgeBlockMaterial extends PassthroughBlockMaterial {
     @Override
     public boolean isSolid() {
         return block.isSolid();
+    }
+
+    @Override
+    public float getHardness() {
+        return block.getBlock().defaultDestroyTime();
+    }
+
+    @Override
+    public float getResistance() {
+        // return block.getBlock().getExplosionResistance();
+        return super.getResistance();
+    }
+
+    @Override
+    public float getSlipperiness() {
+        return block.getBlock().getFriction();
+    }
+
+    @Override
+    public int getLightValue() {
+        // return block.getLightEmission();
+        return super.getLightValue();
+    }
+
+    @Override
+    public int getMapColor() {
+        return delegate.getColor().col;
     }
 
     @Override
@@ -73,6 +112,11 @@ public class ForgeBlockMaterial extends PassthroughBlockMaterial {
     }
 
     @SuppressWarnings("deprecation")
+    @Override
+    public boolean isTicksRandomly() {
+        return block.isRandomlyTicking();
+    }
+
     @Override
     public boolean isMovementBlocker() {
         return block.blocksMotion();
@@ -91,6 +135,16 @@ public class ForgeBlockMaterial extends PassthroughBlockMaterial {
     @Override
     public boolean isReplacedDuringPlacement() {
         return block.canBeReplaced();
+    }
+
+    @Override
+    public boolean isTranslucent() {
+        return super.isTranslucent();
+    }
+
+    @Override
+    public boolean hasContainer() {
+        return block.hasBlockEntity();
     }
 
 }

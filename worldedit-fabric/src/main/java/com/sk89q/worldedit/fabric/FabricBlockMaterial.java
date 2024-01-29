@@ -26,6 +26,7 @@ import net.minecraft.world.level.material.PushReaction;
 
 import javax.annotation.Nullable;
 
+// TODO Finish delegating all methods
 /**
  * Fabric block material that pulls as much info as possible from the Minecraft
  * Material, and passes the rest to another implementation, typically the
@@ -46,8 +47,19 @@ public class FabricBlockMaterial extends PassthroughBlockMaterial {
     }
 
     @Override
+    public boolean isFullCube() {
+        // return block.isFullCube();
+        return super.isFullCube();
+    }
+
+    @Override
     public boolean isOpaque() {
         return block.canOcclude();
+    }
+
+    @Override
+    public boolean isPowerSource() {
+        return block.emitsRedstonePower();
     }
 
     @Override
@@ -61,6 +73,31 @@ public class FabricBlockMaterial extends PassthroughBlockMaterial {
     }
 
     @Override
+    public float getHardness() {
+        return block.getBlock().getHardness();
+    }
+
+    @Override
+    public float getResistance() {
+        return block.getBlock().getBlastResistance();
+    }
+
+    @Override
+    public float getSlipperiness() {
+        return block.getBlock().getSlipperiness();
+    }
+
+    @Override
+    public int getLightValue() {
+        return block.getLuminance();
+    }
+
+    @Override
+    public int getMapColor() {
+        return delegate.getColor().color;
+    }
+
+    @Override
     public boolean isFragileWhenPushed() {
         return block.getPistonPushReaction() == PushReaction.DESTROY;
     }
@@ -68,6 +105,11 @@ public class FabricBlockMaterial extends PassthroughBlockMaterial {
     @Override
     public boolean isUnpushable() {
         return block.getPistonPushReaction() == PushReaction.BLOCK;
+    }
+
+    @Override
+    public boolean isTicksRandomly() {
+        return block.hasRandomTicks();
     }
 
     @Override
@@ -88,6 +130,17 @@ public class FabricBlockMaterial extends PassthroughBlockMaterial {
     @Override
     public boolean isReplacedDuringPlacement() {
         return block.canBeReplaced();
+    }
+
+    @Override
+    public boolean isTranslucent() {
+        // return block.isTranslucent();
+        return super.isTranslucent();
+    }
+
+    @Override
+    public boolean hasContainer() {
+        return block.hasBlockEntity();
     }
 
 }
