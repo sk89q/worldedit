@@ -32,7 +32,8 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
-import com.sk89q.worldedit.internal.wna.WorldNativeAccess;
+import com.sk89q.worldedit.internal.wna.WNASharedImpl;
+import com.sk89q.worldedit.internal.wna.NativeWorld;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.Vector3;
@@ -91,7 +92,7 @@ public class BukkitWorld extends AbstractWorld {
     }
 
     private final WeakReference<World> worldRef;
-    private final WorldNativeAccess<?, ?, ?> worldNativeAccess;
+    private final NativeWorld<?, ?, ?> worldNativeAccess;
 
     /**
      * Construct the object.
@@ -482,7 +483,7 @@ public class BukkitWorld extends AbstractWorld {
         clearContainerBlockContents(position);
         if (worldNativeAccess != null) {
             try {
-                return worldNativeAccess.setBlock(position, block, sideEffects);
+                return WNASharedImpl.setBlock(worldNativeAccess, position, block, sideEffects);
             } catch (Exception e) {
                 if (block instanceof BaseBlock baseBlock && baseBlock.getNbt() != null) {
                     LOGGER.warn("Tried to set a corrupt tile entity at " + position.toString()
@@ -515,7 +516,7 @@ public class BukkitWorld extends AbstractWorld {
     public Set<SideEffect> applySideEffects(BlockVector3 position, com.sk89q.worldedit.world.block.BlockState previousType,
             SideEffectSet sideEffectSet) {
         if (worldNativeAccess != null) {
-            worldNativeAccess.applySideEffects(position, previousType, sideEffectSet);
+            WNASharedImpl.applySideEffects(worldNativeAccess, position, previousType, sideEffectSet);
             return Sets.intersection(
                     WorldEditPlugin.getInstance().getInternalPlatform().getSupportedSideEffects(),
                     sideEffectSet.getSideEffectsToApply()

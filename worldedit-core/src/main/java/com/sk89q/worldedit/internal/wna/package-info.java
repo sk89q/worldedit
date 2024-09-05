@@ -21,7 +21,8 @@
  * "WNA", or WorldEdit Native Access.
  *
  * <p>
- * Contains internal helper functions for sharing code between platforms.
+ * Contains internal helper functions for sharing code between platforms. "Native*" interfaces are wrapped around or
+ * mixed in to the native structures.
  * </p>
  */
 package com.sk89q.worldedit.internal.wna;

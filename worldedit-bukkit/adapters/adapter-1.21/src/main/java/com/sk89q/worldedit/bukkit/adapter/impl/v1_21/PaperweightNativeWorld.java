@@ -21,7 +21,7 @@ package com.sk89q.worldedit.bukkit.adapter.impl.v1_21;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.internal.block.BlockStateIdAccess;
-import com.sk89q.worldedit.internal.wna.WorldNativeAccess;
+import com.sk89q.worldedit.internal.wna.NativeWorld;
 import com.sk89q.worldedit.util.SideEffect;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.world.block.BlockState;
@@ -41,7 +41,7 @@ import java.lang.ref.WeakReference;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
-public class PaperweightWorldNativeAccess implements WorldNativeAccess<LevelChunk, net.minecraft.world.level.block.state.BlockState, BlockPos> {
+public class PaperweightNativeWorld implements NativeWorld<LevelChunk, net.minecraft.world.level.block.state.BlockState, BlockPos> {
     private static final int UPDATE = 1;
     private static final int NOTIFY = 2;
 
@@ -49,7 +49,7 @@ public class PaperweightWorldNativeAccess implements WorldNativeAccess<LevelChun
     private final WeakReference<ServerLevel> world;
     private SideEffectSet sideEffectSet;
 
-    public PaperweightWorldNativeAccess(PaperweightAdapter adapter, WeakReference<ServerLevel> world) {
+    public PaperweightNativeWorld(PaperweightAdapter adapter, WeakReference<ServerLevel> world) {
         this.adapter = adapter;
         this.world = world;
     }
@@ -64,8 +64,8 @@ public class PaperweightWorldNativeAccess implements WorldNativeAccess<LevelChun
     }
 
     @Override
-    public LevelChunk getChunk(int x, int z) {
-        return getWorld().getChunk(x, z);
+    public LevelChunk getChunk(int chunkX, int chunkZ) {
+        return getWorld().getChunk(chunkX, chunkZ);
     }
 
     @Override

@@ -40,7 +40,7 @@ import com.sk89q.worldedit.extension.platform.Watchdog;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.internal.Constants;
 import com.sk89q.worldedit.internal.block.BlockStateIdAccess;
-import com.sk89q.worldedit.internal.wna.WorldNativeAccess;
+import com.sk89q.worldedit.internal.wna.NativeWorld;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.Region;
@@ -437,8 +437,8 @@ public final class PaperweightAdapter implements BukkitImplAdapter {
     }
 
     @Override
-    public WorldNativeAccess<?, ?, ?> createWorldNativeAccess(World world) {
-        return new PaperweightWorldNativeAccess(this, new WeakReference<>(((CraftWorld) world).getHandle()));
+    public NativeWorld<?, ?, ?> createWorldNativeAccess(World world) {
+        return new PaperweightNativeWorld(this, new WeakReference<>(((CraftWorld) world).getHandle()));
     }
 
     private static net.minecraft.core.Direction adapt(Direction face) {
