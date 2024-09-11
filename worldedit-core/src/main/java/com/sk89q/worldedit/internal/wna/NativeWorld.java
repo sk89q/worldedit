@@ -19,7 +19,6 @@
 
 package com.sk89q.worldedit.internal.wna;
 
-import com.sk89q.worldedit.math.BlockVector3;
 import org.enginehub.linbus.tree.LinCompoundTag;
 
 /**
@@ -38,6 +37,10 @@ public interface NativeWorld {
     int getYForSectionIndex(int index);
 
     NativeChunk getChunk(int chunkX, int chunkZ);
+
+    void notifyBlockUpdate(NativePosition pos, NativeBlockState oldState, NativeBlockState newState);
+
+    void markBlockChanged(NativePosition pos);
 
     void updateLightingForBlock(NativePosition position);
 

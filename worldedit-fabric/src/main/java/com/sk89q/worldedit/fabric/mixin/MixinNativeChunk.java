@@ -19,7 +19,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -98,33 +97,16 @@ public abstract class MixinNativeChunk extends ChunkAccess {
         return (NativeBlockState) setBlockState((BlockPos) blockPos, (BlockState) newState, false);
     }
 
-    public void nc$notifyBlockUpdate(NativePosition pos, NativeBlockState oldState, NativeBlockState newState) {
-        if (getSections()[getLevel().getSectionIndex(pos.y())] != null) {
-            getLevel().sendBlockUpdated(
-                (BlockPos) pos, (BlockState) oldState, (BlockState) newState,
-                Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS
-            );
-        }
-    }
-
-    public void nc$markBlockChanged(NativePosition pos) {
-        if (getSections()[getLevel().getSectionIndex(pos.y())] != null) {
-            ((ServerChunkCache) getLevel().getChunkSource()).blockChanged((BlockPos) pos);
-        }
-    }
-
     public void nc$markSectionChanged(int index, ChunkSectionMask changed) {
         ChunkHolder holder = ((ServerChunkCache) getLevel().getChunkSource())
             .getVisibleChunkIfPresent(getPos().toLong());
         if (holder != null) {
             if (holder.changedBlocksPerSection[index] == null) {
                 holder.hasChangedSections = true;
-                holder.changedBlocksPerSection[index] = new ShortOpenHashSet(
-                    Math.max(ShortOpenHashSet.DEFAULT_INITIAL_SIZE, changed.cardinality())
-                );
+                holder.changedBlocksPerSection[index] = new ShortOpenHashSet(changed.asShortCollection());
+            } else {
+                holder.changedBlocksPerSection[index].addAll(changed.asShortCollection());
             }
-
-            holder.changedBlocksPerSection[index].addAll(changed.asShortCollection());
         }
     }
 
@@ -163,12 +145,12 @@ public abstract class MixinNativeChunk extends ChunkAccess {
         return (NativeChunkSection) getSection(index);
     }
 
-    public NativeChunkSection nc$setChunkSection(int index, NativeChunkSection section) {
+    public NativeChunkSection nc$setChunkSection(int index, NativeChunkSection section, ChunkSectionMask modifiedBlocks) {
         Preconditions.checkPositionIndex(index, getSectionsCount());
         LevelChunkSection[] chunkSections = getSections();
         var oldSection = (NativeChunkSection) chunkSections[index];
         chunkSections[index] = (LevelChunkSection) section;
-        WNASharedImpl.postChunkSectionReplacement((NativeChunk) this, index, oldSection, section);
+        WNASharedImpl.postChunkSectionReplacement((NativeChunk) this, index, oldSection, section, modifiedBlocks);
         this.unsaved = true;
         return oldSection;
     }

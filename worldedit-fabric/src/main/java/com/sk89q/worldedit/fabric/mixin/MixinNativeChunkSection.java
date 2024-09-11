@@ -33,6 +33,7 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(LevelChunkSection.class)
 @Implements(@Interface(iface = NativeChunkSection.class, prefix = "ncs$"))
@@ -87,6 +88,7 @@ public abstract class MixinNativeChunkSection {
      * @param container the container to copy
      * @return the copied container
      */
+    @Unique
     private static <T> PalettedContainer<T> copyPalettedContainer(PalettedContainer<T> container) {
         // First init by directly moving the fields over
         PalettedContainer<T> copy = new PalettedContainer<>(container.registry, container.strategy, container.data);

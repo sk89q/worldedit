@@ -206,7 +206,7 @@ public class SectionBufferingExtent extends AbstractBufferingExtent {
             Int2ObjectArrayMap<SectionDataWithOld> oldSections = new Int2ObjectArrayMap<>(entry.getValue().size());
             for (Int2ObjectArrayMap.Entry<SectionData> sectionEntry : entry.getValue().int2ObjectEntrySet()) {
                 SectionData data = sectionEntry.getValue();
-                NativeChunkSection old = chunk.setChunkSection(sectionEntry.getIntKey(), data.section);
+                NativeChunkSection old = chunk.setChunkSection(sectionEntry.getIntKey(), data.section, data.modified);
                 oldSections.put(sectionEntry.getIntKey(), new SectionDataWithOld(data.section, old, data.modified));
             }
             effectData.put(entry.getLongKey(), oldSections);

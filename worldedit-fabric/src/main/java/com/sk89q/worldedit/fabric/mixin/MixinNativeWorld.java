@@ -13,6 +13,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
@@ -49,6 +50,17 @@ public abstract class MixinNativeWorld extends Level {
 
     public NativeChunk nw$getChunk(int chunkX, int chunkZ) {
         return (NativeChunk) getChunk(chunkX, chunkZ);
+    }
+
+    public void nw$notifyBlockUpdate(NativePosition pos, NativeBlockState oldState, NativeBlockState newState) {
+        sendBlockUpdated(
+            (BlockPos) pos, (BlockState) oldState, (BlockState) newState,
+            Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS
+        );
+    }
+
+    public void nw$markBlockChanged(NativePosition pos) {
+        ((ServerChunkCache) getChunkSource()).blockChanged((BlockPos) pos);
     }
 
     public void nw$updateLightingForBlock(NativePosition position) {

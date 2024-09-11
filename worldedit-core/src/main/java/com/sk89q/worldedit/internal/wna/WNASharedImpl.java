@@ -20,6 +20,7 @@
 package com.sk89q.worldedit.internal.wna;
 
 import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.internal.util.collection.ChunkSectionMask;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.SideEffect;
 import com.sk89q.worldedit.util.SideEffectSet;
@@ -129,36 +130,36 @@ public class WNASharedImpl {
      * This is a heavily modified function stripped from MC to apply WorldEdit-modifications.
      *
      * <p>
-     * See Forge's World.markAndNotifyBlock
+     * See NeoForge's Level.markAndNotifyBlock
      * </p>
      */
     public static void markAndNotifyBlock(
-        NativeWorld wna, NativePosition pos, NativeChunk chunk, NativeBlockState oldState, NativeBlockState newState,
+        NativeWorld nativeWorld, NativePosition pos, NativeChunk chunk, NativeBlockState oldState, NativeBlockState newState,
         SideEffectSet sideEffectSet
     ) {
         // Removed redundant branches
 
         if (chunk.isTicking()) {
             if (sideEffectSet.shouldApply(SideEffect.ENTITY_AI)) {
-                chunk.notifyBlockUpdate(pos, oldState, newState);
+                nativeWorld.notifyBlockUpdate(pos, oldState, newState);
             } else if (sideEffectSet.shouldApply(SideEffect.NETWORK)) {
                 // If we want to skip entity AI, just mark the block for sending
-                chunk.markBlockChanged(pos);
+                nativeWorld.markBlockChanged(pos);
             }
         }
 
         if (sideEffectSet.shouldApply(SideEffect.NEIGHBORS)) {
-            wna.notifyNeighbors(pos, oldState, newState);
+            nativeWorld.notifyNeighbors(pos, oldState, newState);
         }
 
         // Make connection updates optional
         if (sideEffectSet.shouldApply(SideEffect.NEIGHBORS)) {
-            wna.updateNeighbors(pos, oldState, newState, 512);
+            nativeWorld.updateNeighbors(pos, oldState, newState, 512);
         }
 
         // Seems used only for PoI updates
         if (sideEffectSet.shouldApply(SideEffect.POI_UPDATE)) {
-            wna.onBlockStateChange(pos, oldState, newState);
+            nativeWorld.onBlockStateChange(pos, oldState, newState);
         }
     }
 
@@ -171,35 +172,30 @@ public class WNASharedImpl {
      * @param index the replaced section index
      * @param oldSection the old section
      * @param newSection the new section
+     * @param modifiedBlocks the mask of modified blocks
      */
     public static void postChunkSectionReplacement(
-        NativeChunk chunk, int index, NativeChunkSection oldSection, NativeChunkSection newSection
+        NativeChunk chunk, int index, NativeChunkSection oldSection, NativeChunkSection newSection,
+        ChunkSectionMask modifiedBlocks
     ) {
-        for (int secX = 0; secX < 16; secX++) {
-            for (int secY = 0; secY < 16; secY++) {
-                for (int secZ = 0; secZ < 16; secZ++) {
-                    NativeBlockState oldState = oldSection.getBlock(secX, secY, secZ);
-                    NativeBlockState newState = newSection.getBlock(secX, secY, secZ);
-                    if (oldState.isSame(newState)) {
-                        continue;
-                    }
-                    int chunkY = chunk.getWorld().getYForSectionIndex(index) + secY;
-                    // We skip heightmaps, they're optimized at a higher level to a single call.
+        modifiedBlocks.forEach((secX, secY, secZ) -> {
+            NativeBlockState oldState = oldSection.getBlock(secX, secY, secZ);
+            NativeBlockState newState = newSection.getBlock(secX, secY, secZ);
+            int chunkY = chunk.getWorld().getYForSectionIndex(index) + secY;
+            // We skip heightmaps, they're optimized at a higher level to a single call.
 
-                    // We skip onRemove here, will call in UPDATE side effect if necessary.
+            // We skip onRemove here, will call in UPDATE side effect if necessary.
 
-                    if (oldState.isSameBlockType(newState) && oldState.hasBlockEntity()) {
-                        chunk.removeSectionBlockEntity(secX, chunkY, secZ);
-                    }
-
-                    // We skip onPlace here, will call in UPDATE side effect if necessary.
-
-                    if (newState.hasBlockEntity()) {
-                        chunk.initializeBlockEntity(secX, chunkY, secZ, newState);
-                    }
-                }
+            if (oldState.isSameBlockType(newState) && oldState.hasBlockEntity()) {
+                chunk.removeSectionBlockEntity(secX, chunkY, secZ);
             }
-        }
+
+            // We skip onPlace here, will call in UPDATE side effect if necessary.
+
+            if (newState.hasBlockEntity()) {
+                chunk.initializeBlockEntity(secX, chunkY, secZ, newState);
+            }
+        });
 
         boolean wasOnlyAir = oldSection.isOnlyAir();
         boolean onlyAir = newSection.isOnlyAir();

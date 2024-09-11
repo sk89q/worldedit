@@ -19,10 +19,6 @@ public interface NativeChunk {
     @Nullable
     NativeBlockState setBlockState(NativePosition blockPos, NativeBlockState newState);
 
-    void notifyBlockUpdate(NativePosition pos, NativeBlockState oldState, NativeBlockState newState);
-
-    void markBlockChanged(NativePosition pos);
-
     void markSectionChanged(int index, ChunkSectionMask changed);
 
     void updateHeightmaps();
@@ -45,11 +41,12 @@ public interface NativeChunk {
      * Replaces a chunk section in the given chunk. This method is also responsible for updating heightmaps
      * and creating block entities, to keep consistency with {@link #setBlockState(NativePosition, NativeBlockState)}
      * (the method we used to use). This is usually easily done by calling
-     * {@link WNASharedImpl#postChunkSectionReplacement(NativeChunk, int, NativeChunkSection, NativeChunkSection)}.
+     * {@link WNASharedImpl#postChunkSectionReplacement(NativeChunk, int, NativeChunkSection, NativeChunkSection, ChunkSectionMask)}.
      *
      * @param index the index, from 0 to the max height divided by 16
      * @param section the new chunk section
+     * @param modifiedBlocks the mask of modified blocks
      * @return the old chunk section
      */
-    NativeChunkSection setChunkSection(int index, NativeChunkSection section);
+    NativeChunkSection setChunkSection(int index, NativeChunkSection section, ChunkSectionMask modifiedBlocks);
 }
