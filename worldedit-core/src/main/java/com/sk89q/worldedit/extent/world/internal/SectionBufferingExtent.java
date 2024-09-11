@@ -21,7 +21,6 @@ package com.sk89q.worldedit.extent.world.internal;
 
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extent.AbstractBufferingExtent;
-import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.world.SideEffectExtent;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.RunContext;
@@ -68,12 +67,12 @@ public class SectionBufferingExtent extends AbstractBufferingExtent {
     private final SideEffectExtent sideEffectExtent;
     private boolean enabled;
 
-    public SectionBufferingExtent(Extent extent, NativeWorld nativeWorld, SideEffectExtent sideEffectExtent) {
-        this(extent, nativeWorld, sideEffectExtent, true);
+    public SectionBufferingExtent(NativeWorld nativeWorld, SideEffectExtent sideEffectExtent) {
+        this(nativeWorld, sideEffectExtent, true);
     }
 
-    public SectionBufferingExtent(Extent extent, NativeWorld nativeWorld, SideEffectExtent sideEffectExtent, boolean enabled) {
-        super(extent);
+    public SectionBufferingExtent(NativeWorld nativeWorld, SideEffectExtent sideEffectExtent, boolean enabled) {
+        super(sideEffectExtent);
         this.nativeWorld = nativeWorld;
         this.sideEffectExtent = sideEffectExtent;
         this.enabled = enabled;

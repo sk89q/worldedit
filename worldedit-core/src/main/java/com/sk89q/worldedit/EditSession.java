@@ -255,13 +255,14 @@ public class EditSession implements Extent, AutoCloseable {
             Extent extent;
 
             // These extents are ALWAYS used
-            extent = traceIfNeeded(sideEffectExtent = new SideEffectExtent(world));
-            if (world instanceof AbstractWorld internalWorld) {
-                NativeWorld nativeInterface = internalWorld.getNativeInterface();
-                if (nativeInterface != null) {
-                    // Forking extent, will not continue to above extents if enabled
-                    extent = traceIfNeeded(new SectionBufferingExtent(extent, nativeInterface, sideEffectExtent));
-                }
+            sideEffectExtent = new SideEffectExtent(world);
+            NativeWorld nativeInterface;
+            if (WorldEdit.getInstance().getConfiguration().chunkSectionEditing
+                && world instanceof AbstractWorld internalWorld
+                && (nativeInterface = internalWorld.getNativeInterface()) != null) {
+                extent = traceIfNeeded(new SectionBufferingExtent(nativeInterface, sideEffectExtent));
+            } else {
+                extent = traceIfNeeded(sideEffectExtent);
             }
             if (watchdog != null) {
                 // Reset watchdog before world placement
