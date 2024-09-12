@@ -32,6 +32,7 @@ import com.sk89q.worldedit.extent.MaskingExtent;
 import com.sk89q.worldedit.extent.NullExtent;
 import com.sk89q.worldedit.extent.TracingExtent;
 import com.sk89q.worldedit.extent.buffer.ForgetfulExtentBuffer;
+import com.sk89q.worldedit.extent.buffer.internal.BatchingExtent;
 import com.sk89q.worldedit.extent.cache.LastAccessExtentCache;
 import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.extent.inventory.BlockBagExtent;
@@ -202,6 +203,7 @@ public class EditSession implements Extent, AutoCloseable {
 
     private @Nullable SideEffectExtent sideEffectExtent;
     private final SurvivalModeExtent survivalExtent;
+    private @Nullable BatchingExtent batchingExtent;
     private @Nullable ChunkBatchingExtent chunkBatchingExtent;
     private final BlockBagExtent blockBagExtent;
     @SuppressWarnings("deprecation")
@@ -256,10 +258,11 @@ public class EditSession implements Extent, AutoCloseable {
 
             // These extents are ALWAYS used
             sideEffectExtent = new SideEffectExtent(world);
-            NativeWorld nativeInterface;
-            if (WorldEdit.getInstance().getConfiguration().chunkSectionEditing
+            NativeWorld nativeInterface = null;
+            boolean usingNativeInterface = WorldEdit.getInstance().getConfiguration().chunkSectionEditing
                 && world instanceof AbstractWorld internalWorld
-                && (nativeInterface = internalWorld.getNativeInterface()) != null) {
+                && (nativeInterface = internalWorld.getNativeInterface()) != null;
+            if (usingNativeInterface) {
                 extent = traceIfNeeded(new SectionBufferingExtent(nativeInterface, sideEffectExtent));
             } else {
                 extent = traceIfNeeded(sideEffectExtent);
@@ -278,6 +281,11 @@ public class EditSession implements Extent, AutoCloseable {
             this.bypassReorderHistory = traceIfNeeded(new DataValidatorExtent(extent, world));
 
             // This extent can be skipped by calling rawSetBlock()
+            if (!usingNativeInterface) {
+                // We need to ensure that blocks are not immediately committed to the world for masks
+                // This is done by the SectionBufferingExtent normally, but if we can't use it we need a fallback
+                extent = traceIfNeeded(batchingExtent = new BatchingExtent(extent));
+            }
             @SuppressWarnings("deprecation")
             MultiStageReorder reorder = new MultiStageReorder(extent, false);
             extent = traceIfNeeded(reorderExtent = reorder);
@@ -631,6 +639,9 @@ public class EditSession implements Extent, AutoCloseable {
             internalFlushSession();
         }
         chunkBatchingExtent.setEnabled(batchingChunks);
+        if (batchingExtent != null) {
+            batchingExtent.setEnabled(!batchingChunks);
+        }
     }
 
     /**
@@ -659,6 +670,9 @@ public class EditSession implements Extent, AutoCloseable {
         setReorderMode(ReorderMode.NONE);
         if (chunkBatchingExtent != null) {
             chunkBatchingExtent.setEnabled(false);
+            if (batchingExtent != null) {
+                batchingExtent.setEnabled(true);
+            }
         }
     }
 
