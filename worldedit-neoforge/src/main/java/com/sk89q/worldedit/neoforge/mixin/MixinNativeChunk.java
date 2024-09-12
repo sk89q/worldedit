@@ -27,6 +27,7 @@ import com.sk89q.worldedit.internal.wna.NativeChunkSection;
 import com.sk89q.worldedit.internal.wna.NativePosition;
 import com.sk89q.worldedit.internal.wna.NativeWorld;
 import com.sk89q.worldedit.internal.wna.WNASharedImpl;
+import com.sk89q.worldedit.neoforge.internal.ExtendedChunk;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -112,8 +113,10 @@ public abstract class MixinNativeChunk extends ChunkAccess {
         return (NativeBlockState) getBlockState((BlockPos) blockPos);
     }
 
-    public @Nullable NativeBlockState nc$setBlockState(NativePosition blockPos, NativeBlockState newState) {
-        return (NativeBlockState) setBlockState((BlockPos) blockPos, (BlockState) newState, false);
+    public @Nullable NativeBlockState nc$setBlockState(NativePosition blockPos, NativeBlockState newState, boolean update) {
+        return (NativeBlockState) ((ExtendedChunk) this).setBlockState(
+            (BlockPos) blockPos, (BlockState) newState, false, update
+        );
     }
 
     public void nc$markSectionChanged(int index, ChunkSectionMask changed) {

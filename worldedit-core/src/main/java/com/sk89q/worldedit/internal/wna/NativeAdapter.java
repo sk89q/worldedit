@@ -19,6 +19,7 @@
 
 package com.sk89q.worldedit.internal.wna;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockState;
 
 /**
@@ -29,5 +30,5 @@ public interface NativeAdapter {
 
     BlockState fromNative(NativeBlockState state);
 
-    NativePosition newBlockPos(int x, int y, int z);
+    NativePosition newBlockPos(BlockVector3 pos);
 }

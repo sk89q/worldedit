@@ -19,7 +19,10 @@
 
 package com.sk89q.worldedit.extent.world.internal;
 
+import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.extension.platform.Capability;
+import com.sk89q.worldedit.extension.platform.Watchdog;
 import com.sk89q.worldedit.extent.AbstractBufferingExtent;
 import com.sk89q.worldedit.extent.world.SideEffectExtent;
 import com.sk89q.worldedit.function.operation.Operation;
@@ -197,8 +200,13 @@ public class SectionBufferingExtent extends AbstractBufferingExtent {
         ) {
         }
 
+
+        Watchdog watchdog = WorldEdit.getInstance().getPlatformManager()
+            .queryCapability(Capability.GAME_HOOKS).getWatchdog();
+
         Long2ObjectMap<Int2ObjectArrayMap<SectionDataWithOld>> effectData = new Long2ObjectLinkedOpenHashMap<>();
 
+        int ops = 0;
         for (Long2ObjectMap.Entry<Int2ObjectArrayMap<SectionData>> entry : sectionTable.long2ObjectEntrySet()) {
             int chunkX = (int) entry.getLongKey();
             int chunkZ = (int) (entry.getLongKey() >> 32);
@@ -212,14 +220,22 @@ public class SectionBufferingExtent extends AbstractBufferingExtent {
             effectData.put(entry.getLongKey(), oldSections);
 
             chunk.updateHeightmaps();
+
+            if (watchdog != null) {
+                ops = updateWatchdog(ops, watchdog);
+            }
         }
         sectionTable.clear();
 
         for (Map.Entry<BlockVector3, LinCompoundTag> entry : blockEntityMap.entrySet()) {
             BlockVector3 position = entry.getKey();
             LinCompoundTag tag = entry.getValue();
-            NativePosition pos = nativeWorld.getAdapter().newBlockPos(position.x(), position.y(), position.z());
+            NativePosition pos = nativeWorld.getAdapter().newBlockPos(position);
             WNASharedImpl.updateTileEntity(nativeWorld, tag, pos);
+
+            if (watchdog != null) {
+                ops = updateWatchdog(ops, watchdog);
+            }
         }
         blockEntityMap.clear();
 
@@ -245,7 +261,20 @@ public class SectionBufferingExtent extends AbstractBufferingExtent {
                     );
                 });
             }
+
+            if (watchdog != null) {
+                ops = updateWatchdog(ops, watchdog);
+            }
         }
+    }
+
+    private static int updateWatchdog(int ops, Watchdog watchdog) {
+        ops++;
+        if (ops == 100) {
+            watchdog.tick();
+            ops = 0;
+        }
+        return ops;
     }
 
 }

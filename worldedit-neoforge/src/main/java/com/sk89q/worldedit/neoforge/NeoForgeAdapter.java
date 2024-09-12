@@ -83,8 +83,8 @@ public final class NeoForgeAdapter {
         }
 
         @Override
-        public NativePosition newBlockPos(int x, int y, int z) {
-            return (NativePosition) new BlockPos(x, y, z);
+        public NativePosition newBlockPos(BlockVector3 pos) {
+            return (NativePosition) new BlockPos(pos.x(), pos.y(), pos.z());
         }
     };
 

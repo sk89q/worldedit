@@ -43,20 +43,16 @@ public class WNASharedImpl {
         checkNotNull(position);
         checkNotNull(block);
 
-        int x = position.x();
-        int y = position.y();
-        int z = position.z();
-
         // First set the block
-        NativeChunk chunk = nativeWorld.getChunk(x >> 4, z >> 4);
-        NativePosition pos = nativeWorld.getAdapter().newBlockPos(x, y, z);
+        NativeChunk chunk = nativeWorld.getChunk(position.x() >> 4, position.z() >> 4);
+        NativePosition pos = nativeWorld.getAdapter().newBlockPos(position);
         NativeBlockState old = chunk.getBlockState(pos);
         NativeBlockState newState = nativeWorld.getAdapter().toNative(block.toImmutableState());
         // change block prior to placing if it should be fixed
         if (sideEffects.shouldApply(SideEffect.VALIDATION)) {
             newState = newState.updateFromNeighbourShapes(nativeWorld, pos);
         }
-        NativeBlockState lastValue = chunk.setBlockState(pos, newState);
+        NativeBlockState lastValue = chunk.setBlockState(pos, newState, sideEffects.shouldApply(SideEffect.UPDATE));
         boolean successful = lastValue != null;
 
         // Create the TileEntity
@@ -102,7 +98,7 @@ public class WNASharedImpl {
     public static void applySideEffects(
         NativeWorld nativeWorld, SideEffectSet sideEffectSet, BlockVector3 position, BlockState previousType
     ) {
-        NativePosition pos = nativeWorld.getAdapter().newBlockPos(position.x(), position.y(), position.z());
+        NativePosition pos = nativeWorld.getAdapter().newBlockPos(position);
         NativeChunk chunk = nativeWorld.getChunk(position.x() >> 4, position.z() >> 4);
         NativeBlockState oldData = nativeWorld.getAdapter().toNative(previousType);
         NativeBlockState newData = chunk.getBlockState(pos);
@@ -148,12 +144,12 @@ public class WNASharedImpl {
         }
 
         if (sideEffectSet.shouldApply(SideEffect.NEIGHBORS)) {
-            nativeWorld.notifyNeighbors(pos, oldState, newState);
+            nativeWorld.notifyNeighbors(pos, oldState, newState, sideEffectSet.shouldApply(SideEffect.EVENTS));
         }
 
         // Make connection updates optional
         if (sideEffectSet.shouldApply(SideEffect.NEIGHBORS)) {
-            nativeWorld.updateNeighbors(pos, oldState, newState, 512);
+            nativeWorld.updateNeighbors(pos, oldState, newState, 512, sideEffectSet.shouldApply(SideEffect.EVENTS));
         }
 
         // Seems used only for PoI updates
@@ -164,7 +160,7 @@ public class WNASharedImpl {
 
     /**
      * After a chunk section replacement, this function can be called to update the heightmaps, block entities, etc.
-     * to keep consistency with {@link NativeChunk#setBlockState(NativePosition, NativeBlockState)}. Doing this allows
+     * to keep consistency with {@link NativeChunk#setBlockState(NativePosition, NativeBlockState, boolean)}. Doing this allows
      * skipping redundant updates caused by multiple set calls, and filtering out unwanted side effects.
      *
      * @param chunk the chunk

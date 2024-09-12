@@ -104,7 +104,7 @@ public interface BukkitImplAdapter {
      * @param world the world reference
      * @return the native access object
      */
-    NativeWorld<?, ?, ?> createWorldNativeAccess(World world);
+    NativeWorld createNativeInterface(World world);
 
     /**
      * Get the state for the given entity.

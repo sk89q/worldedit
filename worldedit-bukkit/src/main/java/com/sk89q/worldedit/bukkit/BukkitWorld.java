@@ -32,8 +32,8 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
-import com.sk89q.worldedit.internal.wna.WNASharedImpl;
 import com.sk89q.worldedit.internal.wna.NativeWorld;
+import com.sk89q.worldedit.internal.wna.WNASharedImpl;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.Vector3;
@@ -92,7 +92,7 @@ public class BukkitWorld extends AbstractWorld {
     }
 
     private final WeakReference<World> worldRef;
-    private final NativeWorld<?, ?, ?> worldNativeAccess;
+    private final NativeWorld nativeWorld;
 
     /**
      * Construct the object.
@@ -103,10 +103,15 @@ public class BukkitWorld extends AbstractWorld {
         this.worldRef = new WeakReference<>(world);
         BukkitImplAdapter adapter = WorldEditPlugin.getInstance().getBukkitImplAdapter();
         if (adapter != null) {
-            this.worldNativeAccess = adapter.createWorldNativeAccess(world);
+            this.nativeWorld = adapter.createNativeInterface(world);
         } else {
-            this.worldNativeAccess = null;
+            this.nativeWorld = null;
         }
+    }
+
+    @Override
+    public @Nullable NativeWorld getNativeInterface() {
+        return nativeWorld;
     }
 
     @Override
@@ -481,9 +486,9 @@ public class BukkitWorld extends AbstractWorld {
     @Override
     public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, SideEffectSet sideEffects) {
         clearContainerBlockContents(position);
-        if (worldNativeAccess != null) {
+        if (nativeWorld != null) {
             try {
-                return WNASharedImpl.setBlock(worldNativeAccess, position, block, sideEffects);
+                return WNASharedImpl.setBlock(nativeWorld, position, block, sideEffects);
             } catch (Exception e) {
                 if (block instanceof BaseBlock baseBlock && baseBlock.getNbt() != null) {
                     LOGGER.warn("Tried to set a corrupt tile entity at " + position.toString()
@@ -515,8 +520,8 @@ public class BukkitWorld extends AbstractWorld {
     @Override
     public Set<SideEffect> applySideEffects(BlockVector3 position, com.sk89q.worldedit.world.block.BlockState previousType,
             SideEffectSet sideEffectSet) {
-        if (worldNativeAccess != null) {
-            WNASharedImpl.applySideEffects(worldNativeAccess, position, previousType, sideEffectSet);
+        if (nativeWorld != null) {
+            WNASharedImpl.applySideEffects(nativeWorld, sideEffectSet, position, previousType);
             return Sets.intersection(
                     WorldEditPlugin.getInstance().getInternalPlatform().getSupportedSideEffects(),
                     sideEffectSet.getSideEffectsToApply()

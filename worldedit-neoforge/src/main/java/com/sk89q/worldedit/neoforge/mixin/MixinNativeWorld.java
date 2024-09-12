@@ -26,6 +26,7 @@ import com.sk89q.worldedit.internal.wna.NativePosition;
 import com.sk89q.worldedit.internal.wna.NativeWorld;
 import com.sk89q.worldedit.neoforge.NeoForgeAdapter;
 import com.sk89q.worldedit.neoforge.internal.NBTConverter;
+import com.sk89q.worldedit.util.SideEffectSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -104,7 +105,7 @@ public abstract class MixinNativeWorld extends Level {
         return true;
     }
 
-    public void nw$notifyNeighbors(NativePosition pos, NativeBlockState oldState, NativeBlockState newState) {
+    public void nw$notifyNeighbors(NativePosition pos, NativeBlockState oldState, NativeBlockState newState, SideEffectSet sideEffectSet) {
         BlockPos nativePos = (BlockPos) pos;
         blockUpdated(nativePos, ((BlockState) oldState).getBlock());
         BlockState nativeNewState = (BlockState) newState;

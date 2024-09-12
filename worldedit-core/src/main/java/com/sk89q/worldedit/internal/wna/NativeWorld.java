@@ -19,6 +19,7 @@
 
 package com.sk89q.worldedit.internal.wna;
 
+import com.sk89q.worldedit.util.SideEffectSet;
 import org.enginehub.linbus.tree.LinCompoundTag;
 
 /**
@@ -46,11 +47,11 @@ public interface NativeWorld {
 
     boolean updateTileEntity(NativePosition position, LinCompoundTag tag);
 
-    void notifyNeighbors(NativePosition pos, NativeBlockState oldState, NativeBlockState newState);
+    void notifyNeighbors(NativePosition pos, NativeBlockState oldState, NativeBlockState newState, boolean events);
 
     void updateBlock(NativePosition pos, NativeBlockState oldState, NativeBlockState newState);
 
-    void updateNeighbors(NativePosition pos, NativeBlockState oldState, NativeBlockState newState, int recursionLimit);
+    void updateNeighbors(NativePosition pos, NativeBlockState oldState, NativeBlockState newState, int recursionLimit, boolean events);
 
     void onBlockStateChange(NativePosition pos, NativeBlockState oldState, NativeBlockState newState);
 }

@@ -20,6 +20,7 @@
 package com.sk89q.worldedit.fabric.mixin;
 
 import com.google.common.base.Preconditions;
+import com.sk89q.worldedit.fabric.internal.ExtendedChunk;
 import com.sk89q.worldedit.internal.util.collection.ChunkSectionMask;
 import com.sk89q.worldedit.internal.wna.NativeBlockState;
 import com.sk89q.worldedit.internal.wna.NativeChunk;
@@ -112,8 +113,10 @@ public abstract class MixinNativeChunk extends ChunkAccess {
         return (NativeBlockState) getBlockState((BlockPos) blockPos);
     }
 
-    public @Nullable NativeBlockState nc$setBlockState(NativePosition blockPos, NativeBlockState newState) {
-        return (NativeBlockState) setBlockState((BlockPos) blockPos, (BlockState) newState, false);
+    public @Nullable NativeBlockState nc$setBlockState(NativePosition blockPos, NativeBlockState newState, boolean update) {
+        return (NativeBlockState) ((ExtendedChunk) this).setBlockState(
+            (BlockPos) blockPos, (BlockState) newState, false, update
+        );
     }
 
     public void nc$markSectionChanged(int index, ChunkSectionMask changed) {
