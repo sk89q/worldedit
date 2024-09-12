@@ -17,15 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.sk89q.worldedit.fabric.mixin;
+package com.sk89q.worldedit.neoforge.mixin;
 
-import com.sk89q.worldedit.fabric.FabricAdapter;
-import com.sk89q.worldedit.fabric.internal.NBTConverter;
 import com.sk89q.worldedit.internal.wna.NativeAdapter;
 import com.sk89q.worldedit.internal.wna.NativeBlockState;
 import com.sk89q.worldedit.internal.wna.NativeChunk;
 import com.sk89q.worldedit.internal.wna.NativePosition;
 import com.sk89q.worldedit.internal.wna.NativeWorld;
+import com.sk89q.worldedit.neoforge.NeoForgeAdapter;
+import com.sk89q.worldedit.neoforge.internal.NBTConverter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -56,7 +56,7 @@ public abstract class MixinNativeWorld extends Level {
     }
 
     public NativeAdapter nw$getAdapter() {
-        return FabricAdapter.asNativeAdapter();
+        return NeoForgeAdapter.asNativeAdapter();
     }
 
     public int nw$getSectionIndex(int y) {

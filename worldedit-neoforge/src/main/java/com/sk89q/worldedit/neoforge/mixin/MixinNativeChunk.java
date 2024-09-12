@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.sk89q.worldedit.fabric.mixin;
+package com.sk89q.worldedit.neoforge.mixin;
 
 import com.google.common.base.Preconditions;
 import com.sk89q.worldedit.internal.util.collection.ChunkSectionMask;

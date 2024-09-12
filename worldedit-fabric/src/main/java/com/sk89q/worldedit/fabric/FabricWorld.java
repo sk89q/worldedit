@@ -201,12 +201,12 @@ public class FabricWorld extends AbstractWorld {
     @Override
     public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, SideEffectSet sideEffects) throws WorldEditException {
         clearContainerBlockContents(position);
-        return WNASharedImpl.setBlock(FabricAdapter.asNativeAdapter(), getNativeInterface(), position, block, sideEffects);
+        return WNASharedImpl.setBlock(getNativeInterface(), position, block, sideEffects);
     }
 
     @Override
     public Set<SideEffect> applySideEffects(BlockVector3 position, BlockState previousType, SideEffectSet sideEffectSet) {
-        WNASharedImpl.applySideEffects(FabricAdapter.asNativeAdapter(), getNativeInterface(), sideEffectSet, position, previousType);
+        WNASharedImpl.applySideEffects(getNativeInterface(), sideEffectSet, position, previousType);
         return Sets.intersection(FabricWorldEdit.inst.getPlatform().getSupportedSideEffects(), sideEffectSet.getSideEffectsToApply());
     }
 

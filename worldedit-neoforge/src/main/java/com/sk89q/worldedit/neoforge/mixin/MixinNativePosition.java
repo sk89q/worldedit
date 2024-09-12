@@ -17,15 +17,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.sk89q.worldedit.internal.wna;
+package com.sk89q.worldedit.neoforge.mixin;
 
-/**
- * The equivalent of {@link com.sk89q.worldedit.math.BlockVector3}, but in the platform's base.
- */
-public interface NativePosition {
-    int x();
+import com.sk89q.worldedit.internal.wna.NativePosition;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
 
-    int y();
+@Mixin(BlockPos.class)
+@Implements(@Interface(iface = NativePosition.class, prefix = "nc$"))
+public abstract class MixinNativePosition extends Vec3i {
+    public MixinNativePosition(int x, int y, int z) {
+        super(x, y, z);
+    }
 
-    int z();
+    public int nc$x() {
+        return getX();
+    }
+
+    public int nc$y() {
+        return getY();
+    }
+
+    public int nc$z() {
+        return getZ();
+    }
 }

@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class WNASharedImpl {
     public static <B extends BlockStateHolder<B>> boolean setBlock(
-        NativeAdapter adapter, NativeWorld nativeWorld, BlockVector3 position, B block, SideEffectSet sideEffects
+        NativeWorld nativeWorld, BlockVector3 position, B block, SideEffectSet sideEffects
     ) throws WorldEditException {
         checkNotNull(position);
         checkNotNull(block);
@@ -49,9 +49,9 @@ public class WNASharedImpl {
 
         // First set the block
         NativeChunk chunk = nativeWorld.getChunk(x >> 4, z >> 4);
-        NativePosition pos = adapter.newBlockPos(x, y, z);
+        NativePosition pos = nativeWorld.getAdapter().newBlockPos(x, y, z);
         NativeBlockState old = chunk.getBlockState(pos);
-        NativeBlockState newState = adapter.toNative(block.toImmutableState());
+        NativeBlockState newState = nativeWorld.getAdapter().toNative(block.toImmutableState());
         // change block prior to placing if it should be fixed
         if (sideEffects.shouldApply(SideEffect.VALIDATION)) {
             newState = newState.updateFromNeighbourShapes(nativeWorld, pos);
@@ -100,12 +100,11 @@ public class WNASharedImpl {
     }
 
     public static void applySideEffects(
-        NativeAdapter adapter, NativeWorld nativeWorld, SideEffectSet sideEffectSet, BlockVector3 position,
-        BlockState previousType
+        NativeWorld nativeWorld, SideEffectSet sideEffectSet, BlockVector3 position, BlockState previousType
     ) {
-        NativePosition pos = adapter.newBlockPos(position.x(), position.y(), position.z());
+        NativePosition pos = nativeWorld.getAdapter().newBlockPos(position.x(), position.y(), position.z());
         NativeChunk chunk = nativeWorld.getChunk(position.x() >> 4, position.z() >> 4);
-        NativeBlockState oldData = adapter.toNative(previousType);
+        NativeBlockState oldData = nativeWorld.getAdapter().toNative(previousType);
         NativeBlockState newData = chunk.getBlockState(pos);
 
         applySideEffectsNoLookups(nativeWorld, chunk, sideEffectSet, pos, oldData, newData);
