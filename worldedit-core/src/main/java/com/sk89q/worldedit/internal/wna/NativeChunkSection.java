@@ -53,7 +53,7 @@ public interface NativeChunkSection {
     NativeBlockState getBlock(int i, int j, int k);
 
     /**
-     * Is this section made of only air (specifically, {@link BlockMaterial#isAir()})?
+     * Get if this section is made of only air (specifically, {@link BlockMaterial#isAir()}).
      *
      * @return true if the section is only air
      */

@@ -19,7 +19,6 @@
 
 package com.sk89q.worldedit.internal.wna;
 
-import com.sk89q.worldedit.util.SideEffectSet;
 import org.enginehub.linbus.tree.LinCompoundTag;
 
 /**
